@@ -43,6 +43,7 @@ export default function Rates({ dark = false }: Props) {
     setLoading(false);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchRates();
   }, [base]);
@@ -64,6 +65,7 @@ export default function Rates({ dark = false }: Props) {
           display: "flex",
           gap: 10,
           alignItems: "center",
+          flexWrap: "wrap",
         }}
       >
         <select
@@ -95,6 +97,19 @@ export default function Rates({ dark = false }: Props) {
             backgroundColor: loading ? "#9ca3af" : "#4f46e5",
             color: "#fff",
             opacity: loading ? 0.7 : 1,
+            transition: "all 0.3s ease",
+          }}
+          onMouseEnter={(e) => {
+            if (!loading) {
+              e.currentTarget.style.backgroundColor = "#4338ca";
+              e.currentTarget.style.transform = "scale(1.05)";
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = loading
+              ? "#9ca3af"
+              : "#4f46e5";
+            e.currentTarget.style.transform = "scale(1)";
           }}
         >
           🔄 Обновить
@@ -128,7 +143,16 @@ export default function Rates({ dark = false }: Props) {
                 alignItems: "center",
                 gap: 10,
                 borderBottom: dark ? "1px solid #374151" : "1px solid #e5e7eb",
+                transition: "background-color 0.2s",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor = dark
+                  ? "rgba(55, 65, 81, 0.3)"
+                  : "rgba(243, 244, 246, 0.5)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.backgroundColor = "transparent")
+              }
             >
               <img
                 src={`https://flagcdn.com/24x18/${currencyToCountry[code]}.png`}
