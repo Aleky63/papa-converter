@@ -1,19 +1,19 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Converter from "./pages/Converter";
 import Rates from "./pages/Rates";
+import Header from "./components/Header";
 
 export default function App() {
   return (
-    <div style={{ padding: 20 }}>
-      <nav style={{ display: "flex", gap: 20, marginBottom: 20 }}>
-        <Link to="/">Converter</Link>
-        <Link to="/rates">Rates</Link>
-      </nav>
+    <>
+      <Header />
 
-      <Routes>
-        <Route path="/" element={<Converter />} />
-        <Route path="/rates" element={<Rates />} />
-      </Routes>
-    </div>
+      <div style={{ padding: 20 }}>
+        <Routes>
+          <Route path="/" element={<Converter />} />
+          <Route path="/rates" element={<Rates />} />
+        </Routes>
+      </div>
+    </>
   );
 }

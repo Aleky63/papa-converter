@@ -12,4 +12,14 @@ export function useBaseCurrency() {
   return [base, setBase] as [string, (b: string) => void];
 }
 
-export const currencies = ["USD", "EUR", "RUB", "GBP", "JPY", "GEL"];
+export const currencies = [
+  "USD",
+  "EUR",
+  "RUB",
+  "GBP",
+  "JPY",
+  "GEL",
+  "KZT",
+  "AMD",
+  "AED",
+];
