@@ -39,7 +39,7 @@ export default function Header({ dark, setDark }: Props) {
       <button
         onClick={() => setDark((prev) => !prev)}
         style={{
-          padding: "4px 8px",
+          padding: "6px 10px",
           borderRadius: 6,
           border: "none",
           cursor: "pointer",
