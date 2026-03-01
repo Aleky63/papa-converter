@@ -1,85 +1,75 @@
 import { useEffect, useState } from "react";
 import { useBaseCurrency, currencies } from "../utils/useBaseCurrency";
 import { currencyNames } from "../utils/currenciesNames";
+import { currencyToCountry } from "../utils/currencyFlags";
+
+type Props = {
+  dark: boolean;
+};
 
 type RatesResponse = {
   result: string;
   rates: Record<string, number>;
 };
 
-export default function Rates() {
+export default function Rates({ dark }: Props) {
   const [base, setBase] = useBaseCurrency();
   const [rates, setRates] = useState<Record<string, number> | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(false);
+  const [updatedAt, setUpdatedAt] = useState<string>("");
+
+  const fetchRates = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(`https://open.er-api.com/v6/latest/${base}`);
+
+      const data: RatesResponse = await response.json();
+
+      if (data.result === "success") {
+        const filtered: Record<string, number> = {};
+
+        currencies.forEach((cur) => {
+          if (data.rates[cur]) {
+            filtered[cur] = data.rates[cur];
+          }
+        });
+
+        setRates(filtered);
+        setUpdatedAt(new Date().toLocaleString());
+      } else {
+        setRates(null);
+      }
+    } catch (error) {
+      console.error("Ошибка загрузки:", error);
+      setRates(null);
+    }
+
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchRates = async () => {
-      setLoading(true);
-      setRates(null);
-
-      try {
-        const response = await fetch(
-          `https://open.er-api.com/v6/latest/${base}`,
-        );
-        const data: RatesResponse = await response.json();
-
-        if (data.result === "success") {
-          const filteredRates: Record<string, number> = {};
-          currencies.forEach((cur) => {
-            if (data.rates[cur]) filteredRates[cur] = data.rates[cur];
-          });
-          setRates(filteredRates);
-        } else {
-          setRates(null);
-        }
-      } catch {
-        setRates(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchRates();
   }, [base]);
-
-  const handleChangeBase = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setBase(e.target.value);
-  };
 
   return (
     <div
       style={{
-        maxWidth: 450,
-        margin: "40px auto",
-        padding: 20,
-        borderRadius: 12,
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-        textAlign: "center",
-        fontFamily: "Arial, sans-serif",
-        backgroundColor: "#f9f9f9",
+        maxWidth: 700,
+        margin: "0 auto",
       }}
     >
-      <h1 style={{ marginBottom: 20, color: "#333" }}>Exchange Rates</h1>
+      <h1 style={{ marginBottom: 20 }}>Курсы валют</h1>
 
-      <label style={{ display: "block", marginBottom: 20, color: "#333" }}>
-        Base currency:{" "}
+      <div style={{ marginBottom: 15 }}>
         <select
           value={base}
-          onChange={handleChangeBase}
+          onChange={(e) => setBase(e.target.value)}
           style={{
             padding: 8,
             borderRadius: 6,
-            border: "1px solid #ccc",
-            backgroundColor: "#fff",
-            color: "#333",
-            transition: "border 0.2s",
+            marginRight: 10,
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.border = "1px solid #999")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.border = "1px solid #ccc")
-          }
         >
           {currencies.map((cur) => (
             <option key={cur} value={cur}>
@@ -87,34 +77,63 @@ export default function Rates() {
             </option>
           ))}
         </select>
-      </label>
 
-      {loading && <p style={{ color: "#888" }}>Загрузка...</p>}
+        <button
+          onClick={fetchRates}
+          style={{
+            padding: "6px 12px",
+            cursor: "pointer",
+            borderRadius: 6,
+            border: "none",
+            backgroundColor: "#4f46e5",
+            color: "#fff",
+          }}
+        >
+          🔄 Обновить
+        </button>
+      </div>
 
-      {rates ? (
-        <ul style={{ listStyle: "none", padding: 0, textAlign: "left" }}>
+      {updatedAt && (
+        <p style={{ fontSize: 12, opacity: 0.7 }}>
+          Последнее обновление: {updatedAt}
+        </p>
+      )}
+
+      {loading && <p>Загрузка...</p>}
+
+      {rates && (
+        <ul style={{ listStyle: "none", padding: 0 }}>
           {Object.entries(rates).map(([code, value]) => (
             <li
               key={code}
               style={{
-                padding: "6px 10px",
-                color: "#333",
-                borderRadius: 6,
-                transition: "background-color 0.2s",
+                padding: "8px 0",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                borderBottom: dark ? "1px solid #374151" : "1px solid #e5e7eb",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.backgroundColor = "#ececec")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.backgroundColor = "transparent")
-              }
             >
-              1 {base} = {value.toFixed(4)} {code} ({currencyNames[code] || ""})
+              <img
+                src={`https://flagcdn.com/24x18/${currencyToCountry[code]}.png`}
+                alt={code}
+                width={24}
+                height={18}
+                style={{ borderRadius: 3 }}
+              />
+
+              <span>
+                1 {base} = {value.toFixed(4)} {code}
+              </span>
+
+              <span style={{ opacity: 0.7 }}>— {currencyNames[code]}</span>
             </li>
           ))}
         </ul>
-      ) : (
-        !loading && <p style={{ color: "#888" }}>Не удалось загрузить курсы</p>
+      )}
+
+      {!loading && !rates && (
+        <p style={{ color: "red" }}>Не удалось загрузить курсы</p>
       )}
     </div>
   );
