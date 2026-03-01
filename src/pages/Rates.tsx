@@ -4,7 +4,7 @@ import { currencyNames } from "../utils/currenciesNames";
 import { currencyToCountry } from "../utils/currencyFlags";
 
 type Props = {
-  dark: boolean;
+  dark?: boolean;
 };
 
 type RatesResponse = {
@@ -12,7 +12,7 @@ type RatesResponse = {
   rates: Record<string, number>;
 };
 
-export default function Rates({ dark }: Props) {
+export default function Rates({ dark = false }: Props) {
   const [base, setBase] = useBaseCurrency();
   const [rates, setRates] = useState<Record<string, number> | null>(null);
   const [loading, setLoading] = useState(false);
@@ -20,21 +20,17 @@ export default function Rates({ dark }: Props) {
 
   const fetchRates = async () => {
     setLoading(true);
-
     try {
       const response = await fetch(`https://open.er-api.com/v6/latest/${base}`);
-
       const data: RatesResponse = await response.json();
 
       if (data.result === "success") {
         const filtered: Record<string, number> = {};
-
         currencies.forEach((cur) => {
           if (data.rates[cur]) {
             filtered[cur] = data.rates[cur];
           }
         });
-
         setRates(filtered);
         setUpdatedAt(new Date().toLocaleString());
       } else {
@@ -44,7 +40,6 @@ export default function Rates({ dark }: Props) {
       console.error("Ошибка загрузки:", error);
       setRates(null);
     }
-
     setLoading(false);
   };
 
@@ -57,18 +52,29 @@ export default function Rates({ dark }: Props) {
       style={{
         maxWidth: 700,
         margin: "0 auto",
+        color: dark ? "#f3f4f6" : "#333",
+        transition: "color 0.3s",
       }}
     >
       <h1 style={{ marginBottom: 20 }}>Курсы валют</h1>
 
-      <div style={{ marginBottom: 15 }}>
+      <div
+        style={{
+          marginBottom: 15,
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+        }}
+      >
         <select
           value={base}
           onChange={(e) => setBase(e.target.value)}
           style={{
             padding: 8,
             borderRadius: 6,
-            marginRight: 10,
+            backgroundColor: dark ? "#374151" : "#fff",
+            color: dark ? "#f3f4f6" : "#333",
+            border: "1px solid #ccc",
           }}
         >
           {currencies.map((cur) => (
@@ -80,13 +86,15 @@ export default function Rates({ dark }: Props) {
 
         <button
           onClick={fetchRates}
+          disabled={loading}
           style={{
             padding: "6px 12px",
-            cursor: "pointer",
+            cursor: loading ? "not-allowed" : "pointer",
             borderRadius: 6,
             border: "none",
-            backgroundColor: "#4f46e5",
+            backgroundColor: loading ? "#9ca3af" : "#4f46e5",
             color: "#fff",
+            opacity: loading ? 0.7 : 1,
           }}
         >
           🔄 Обновить
@@ -94,15 +102,23 @@ export default function Rates({ dark }: Props) {
       </div>
 
       {updatedAt && (
-        <p style={{ fontSize: 12, opacity: 0.7 }}>
+        <p
+          style={{
+            fontSize: 12,
+            opacity: 0.7,
+            color: dark ? "#9ca3af" : "#6b7280",
+          }}
+        >
           Последнее обновление: {updatedAt}
         </p>
       )}
 
-      {loading && <p>Загрузка...</p>}
+      {loading && (
+        <p style={{ color: dark ? "#9ca3af" : "#6b7280" }}>Загрузка...</p>
+      )}
 
       {rates && (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {Object.entries(rates).map(([code, value]) => (
             <li
               key={code}
@@ -119,21 +135,24 @@ export default function Rates({ dark }: Props) {
                 alt={code}
                 width={24}
                 height={18}
-                style={{ borderRadius: 3 }}
+                style={{ borderRadius: 3, objectFit: "cover" }}
+                loading="lazy"
               />
-
               <span>
                 1 {base} = {value.toFixed(4)} {code}
               </span>
-
-              <span style={{ opacity: 0.7 }}>— {currencyNames[code]}</span>
+              <span
+                style={{ opacity: 0.7, color: dark ? "#9ca3af" : "#6b7280" }}
+              >
+                — {currencyNames[code]}
+              </span>
             </li>
           ))}
         </ul>
       )}
 
       {!loading && !rates && (
-        <p style={{ color: "red" }}>Не удалось загрузить курсы</p>
+        <p style={{ color: "#ef4444" }}>Не удалось загрузить курсы</p>
       )}
     </div>
   );

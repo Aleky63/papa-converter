@@ -6,13 +6,16 @@ type ApiResponse = {
   rates: Record<string, number>;
 };
 
-export default function Converter() {
+type Props = {
+  dark?: boolean;
+};
+
+export default function Converter({ dark = false }: Props) {
   const [amount, setAmount] = useState<number>(0);
   const [fromCurrency, setFromCurrency] = useState<string>("USD");
   const [toCurrency, setToCurrency] = useState<string>("RUB");
   const [result, setResult] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-
   const [baseCurrency] = useBaseCurrency();
 
   useEffect(() => {
@@ -67,10 +70,14 @@ export default function Converter() {
         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
         textAlign: "center",
         fontFamily: "Arial, sans-serif",
-        backgroundColor: "#f9f9f9",
+        backgroundColor: dark ? "#1f2937" : "#f9f9f9",
+        color: dark ? "#f3f4f6" : "#333",
+        transition: "background-color 0.3s, color 0.3s",
       }}
     >
-      <h1 style={{ marginBottom: 20, color: "#333" }}>Currency Converter</h1>
+      <h1 style={{ marginBottom: 20, color: dark ? "#f3f4f6" : "#333" }}>
+        Currency Converter
+      </h1>
 
       <div
         style={{
@@ -79,28 +86,22 @@ export default function Converter() {
           alignItems: "center",
           marginBottom: 20,
           gap: 10,
+          flexWrap: "wrap",
         }}
       >
         <input
           type="number"
-          value={amount}
-          onChange={(e) => setAmount(parseFloat(e.target.value))}
+          value={amount || ""}
+          onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
           placeholder="Сумма"
           style={{
             padding: 10,
             width: 100,
             borderRadius: 6,
             border: "1px solid #ccc",
-            backgroundColor: "#fff",
-            color: "#333",
-            transition: "border 0.2s",
+            backgroundColor: dark ? "#374151" : "#fff",
+            color: dark ? "#f3f4f6" : "#333",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.border = "1px solid #999")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.border = "1px solid #ccc")
-          }
         />
 
         <select
@@ -110,16 +111,9 @@ export default function Converter() {
             padding: 10,
             borderRadius: 6,
             border: "1px solid #ccc",
-            backgroundColor: "#fff",
-            color: "#333",
-            transition: "border 0.2s",
+            backgroundColor: dark ? "#374151" : "#fff",
+            color: dark ? "#f3f4f6" : "#333",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.border = "1px solid #999")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.border = "1px solid #ccc")
-          }
         >
           {currencies.map((cur) => (
             <option key={cur} value={cur}>
@@ -128,11 +122,7 @@ export default function Converter() {
           ))}
         </select>
 
-        <span
-          style={{ fontSize: 20, color: "#555", transition: "color 0.2s" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#333")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
-        >
+        <span style={{ fontSize: 20, color: dark ? "#9ca3af" : "#555" }}>
           →
         </span>
 
@@ -143,16 +133,9 @@ export default function Converter() {
             padding: 10,
             borderRadius: 6,
             border: "1px solid #ccc",
-            backgroundColor: "#fff",
-            color: "#333",
-            transition: "border 0.2s",
+            backgroundColor: dark ? "#374151" : "#fff",
+            color: dark ? "#f3f4f6" : "#333",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.border = "1px solid #999")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.border = "1px solid #ccc")
-          }
         >
           {currencies.map((cur) => (
             <option key={cur} value={cur}>
@@ -162,9 +145,19 @@ export default function Converter() {
         </select>
       </div>
 
-      {loading && <p style={{ marginTop: 10, color: "#888" }}>Загрузка...</p>}
+      {loading && (
+        <p style={{ marginTop: 10, color: dark ? "#9ca3af" : "#888" }}>
+          Загрузка...
+        </p>
+      )}
       {result && (
-        <p style={{ marginTop: 10, fontWeight: "bold", color: "#222" }}>
+        <p
+          style={{
+            marginTop: 10,
+            fontWeight: "bold",
+            color: dark ? "#f3f4f6" : "#222",
+          }}
+        >
           {result}
         </p>
       )}
