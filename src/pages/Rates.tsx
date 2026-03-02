@@ -22,7 +22,7 @@ export default function Rates({ dark = false }: Props) {
     setLoading(true);
     try {
       const response = await fetch(`https://open.er-api.com/v6/latest/${base}`);
-      const data: RatesResponse = await response.json();
+      const data: RatesResponse = await response.json(); // ✅ Тип используется
 
       if (data.result === "success") {
         const filtered: Record<string, number> = {};
@@ -52,12 +52,24 @@ export default function Rates({ dark = false }: Props) {
     <div
       style={{
         maxWidth: 700,
-        margin: "0 auto",
+        margin: "40px auto",
+        padding: 20,
+        borderRadius: 12,
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+        textAlign: "center",
+        fontFamily: "Arial, sans-serif",
+        // 👇 Прозрачный фон для видимости собаки
+        backgroundColor: dark
+          ? "rgba(31, 41, 55, 0.15)"
+          : "rgba(249, 249, 249, 0.7)",
         color: dark ? "#f3f4f6" : "#333",
-        transition: "color 0.3s",
+        transition: "background-color 0.3s, color 0.3s",
+        backdropFilter: dark ? "blur(2px)" : "none",
       }}
     >
-      <h1 style={{ marginBottom: 20 }}>Курсы валют</h1>
+      <h1 style={{ marginBottom: 20, color: dark ? "#f3f4f6" : "#333" }}>
+        Курсы валют
+      </h1>
 
       <div
         style={{
@@ -66,6 +78,7 @@ export default function Rates({ dark = false }: Props) {
           gap: 10,
           alignItems: "center",
           flexWrap: "wrap",
+          justifyContent: "center",
         }}
       >
         <select
@@ -74,7 +87,7 @@ export default function Rates({ dark = false }: Props) {
           style={{
             padding: 8,
             borderRadius: 6,
-            backgroundColor: dark ? "#374151" : "#fff",
+            backgroundColor: dark ? "rgba(55, 65, 81, 0.25)" : "#fff",
             color: dark ? "#f3f4f6" : "#333",
             border: "1px solid #ccc",
           }}

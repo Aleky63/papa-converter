@@ -34,6 +34,7 @@ export default function Converter({ dark = false }: Props) {
         const response = await fetch(
           `https://open.er-api.com/v6/latest/${fromCurrency}`,
         );
+
         const data: ApiResponse = await response.json();
 
         if (data.result !== "success") {
@@ -70,9 +71,12 @@ export default function Converter({ dark = false }: Props) {
         boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
         textAlign: "center",
         fontFamily: "Arial, sans-serif",
-        backgroundColor: dark ? "#1f2937" : "#f9f9f9",
-        color: dark ? "#f3f4f6" : "#333",
+        backgroundColor: dark
+          ? "rgba(31, 41, 55, 0.05)"
+          : "rgba(249, 249, 249, 0.85)",
+        color: dark ? "#f3f4f6" : "#4e4e4e",
         transition: "background-color 0.3s, color 0.3s",
+        backdropFilter: dark ? "blur(5px)" : "none",
       }}
     >
       <h1 style={{ marginBottom: 20, color: dark ? "#f3f4f6" : "#333" }}>
@@ -99,7 +103,7 @@ export default function Converter({ dark = false }: Props) {
             width: 100,
             borderRadius: 6,
             border: "1px solid #ccc",
-            backgroundColor: dark ? "#374151" : "#fff",
+            backgroundColor: dark ? "rgba(55, 65, 81, 0.4)" : "#fff",
             color: dark ? "#f3f4f6" : "#333",
           }}
         />
@@ -111,7 +115,7 @@ export default function Converter({ dark = false }: Props) {
             padding: 10,
             borderRadius: 6,
             border: "1px solid #ccc",
-            backgroundColor: dark ? "#374151" : "#fff",
+            backgroundColor: dark ? "rgba(55, 65, 81, 0.4)" : "#fff",
             color: dark ? "#f3f4f6" : "#333",
           }}
         >
@@ -133,7 +137,7 @@ export default function Converter({ dark = false }: Props) {
             padding: 10,
             borderRadius: 6,
             border: "1px solid #ccc",
-            backgroundColor: dark ? "#374151" : "#fff",
+            backgroundColor: dark ? "rgba(55, 65, 81, 0.4)" : "#fff",
             color: dark ? "#f3f4f6" : "#333",
           }}
         >
