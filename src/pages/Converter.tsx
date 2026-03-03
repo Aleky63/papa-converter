@@ -1,21 +1,18 @@
 import { useState, useEffect } from "react";
 import { useBaseCurrency, currencies } from "../utils/useBaseCurrency";
+import "../styles.css";
 
 type ApiResponse = {
   result: string;
   rates: Record<string, number>;
 };
 
-type Props = {
-  dark?: boolean;
-};
-
-export default function Converter({ dark = false }: Props) {
+export default function Converter() {
   const [amount, setAmount] = useState<number>(0);
   const [fromCurrency, setFromCurrency] = useState<string>("USD");
   const [toCurrency, setToCurrency] = useState<string>("RUB");
-  const [result, setResult] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [rate, setRate] = useState<number | null>(null);
+
   const [baseCurrency] = useBaseCurrency();
 
   useEffect(() => {
@@ -23,148 +20,60 @@ export default function Converter({ dark = false }: Props) {
   }, [baseCurrency]);
 
   useEffect(() => {
-    if (!amount || !fromCurrency || !toCurrency) {
-      setResult("");
-      return;
-    }
+    if (!fromCurrency || !toCurrency) return;
 
-    const convert = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `https://open.er-api.com/v6/latest/${fromCurrency}`,
-        );
-
-        const data: ApiResponse = await response.json();
-
-        if (data.result !== "success") {
-          setResult("Ошибка API");
-          return;
-        }
-
-        const rate = data.rates[toCurrency];
-        if (!rate) {
-          setResult("Неизвестная валюта");
-          return;
-        }
-
-        setResult(
-          `${amount} ${fromCurrency} = ${(amount * rate).toFixed(4)} ${toCurrency}`,
-        );
-      } catch {
-        setResult("Ошибка запроса к серверу");
-      } finally {
-        setLoading(false);
+    const fetchRate = async () => {
+      const res = await fetch(
+        `https://open.er-api.com/v6/latest/${fromCurrency}`,
+      );
+      const data: ApiResponse = await res.json();
+      if (data.result === "success") {
+        setRate(data.rates[toCurrency]);
       }
     };
 
-    convert();
-  }, [amount, fromCurrency, toCurrency]);
+    fetchRate();
+  }, [fromCurrency, toCurrency]);
+
+  const result =
+    amount && rate
+      ? `${amount} ${fromCurrency} = ${(amount * rate).toFixed(4)} ${toCurrency}`
+      : "";
 
   return (
-    <div
-      style={{
-        maxWidth: 450,
-        margin: "40px auto",
-        padding: 20,
-        borderRadius: 12,
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-        textAlign: "center",
-        fontFamily: "Arial, sans-serif",
-        backgroundColor: dark
-          ? "rgba(31, 41, 55, 0.05)"
-          : "rgba(249, 249, 249, 0.85)",
-        color: dark ? "#f3f4f6" : "#4e4e4e",
-        transition: "background-color 0.3s, color 0.3s",
-        backdropFilter: dark ? "blur(5px)" : "none",
-      }}
-    >
-      <h1 style={{ marginBottom: 20, color: dark ? "#f3f4f6" : "#333" }}>
-        Currency Converter
-      </h1>
+    <div className="app-container">
+      <div className="card">
+        <h1>Currency Converter</h1>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: 20,
-          gap: 10,
-          flexWrap: "wrap",
-        }}
-      >
-        <input
-          type="number"
-          value={amount || ""}
-          onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-          placeholder="Сумма"
-          style={{
-            padding: 10,
-            width: 100,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            backgroundColor: dark ? "rgba(55, 65, 81, 0.4)" : "#fff",
-            color: dark ? "#f3f4f6" : "#333",
-          }}
-        />
+        <div className="controls">
+          <input
+            type="number"
+            value={amount === 0 ? "" : amount}
+            onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
+            placeholder="Сумма"
+          />
 
-        <select
-          value={fromCurrency}
-          onChange={(e) => setFromCurrency(e.target.value)}
-          style={{
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            backgroundColor: dark ? "rgba(55, 65, 81, 0.4)" : "#fff",
-            color: dark ? "#f3f4f6" : "#333",
-          }}
-        >
-          {currencies.map((cur) => (
-            <option key={cur} value={cur}>
-              {cur}
-            </option>
-          ))}
-        </select>
+          <select
+            value={fromCurrency}
+            onChange={(e) => setFromCurrency(e.target.value)}
+          >
+            {currencies.map((cur) => (
+              <option key={cur}>{cur}</option>
+            ))}
+          </select>
 
-        <span style={{ fontSize: 20, color: dark ? "#9ca3af" : "#555" }}>
-          →
-        </span>
+          <select
+            value={toCurrency}
+            onChange={(e) => setToCurrency(e.target.value)}
+          >
+            {currencies.map((cur) => (
+              <option key={cur}>{cur}</option>
+            ))}
+          </select>
+        </div>
 
-        <select
-          value={toCurrency}
-          onChange={(e) => setToCurrency(e.target.value)}
-          style={{
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            backgroundColor: dark ? "rgba(55, 65, 81, 0.4)" : "#fff",
-            color: dark ? "#f3f4f6" : "#333",
-          }}
-        >
-          {currencies.map((cur) => (
-            <option key={cur} value={cur}>
-              {cur}
-            </option>
-          ))}
-        </select>
+        {result && <p>{result}</p>}
       </div>
-
-      {loading && (
-        <p style={{ marginTop: 10, color: dark ? "#9ca3af" : "#888" }}>
-          Загрузка...
-        </p>
-      )}
-      {result && (
-        <p
-          style={{
-            marginTop: 10,
-            fontWeight: "bold",
-            color: dark ? "#f3f4f6" : "#222",
-          }}
-        >
-          {result}
-        </p>
-      )}
     </div>
   );
 }
