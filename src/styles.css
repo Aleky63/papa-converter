@@ -72,3 +72,14 @@ input {
 .currency-name {
   opacity: 0.7;
 }
+.background {
+  width: 600px !important;
+  height: 600px !important;
+}
+
+@media (max-width: 479px) {
+  .background {
+    width: 320px !important;
+    height: 320px !important;
+  }
+}
