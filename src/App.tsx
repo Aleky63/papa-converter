@@ -10,6 +10,7 @@ function Background({ dark }: { dark: boolean }) {
 
   return (
     <div
+      className="background"
       style={{
         position: "fixed",
         top: "60%",
