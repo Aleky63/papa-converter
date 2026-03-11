@@ -8,4 +8,5 @@ export const currencyToCountry: Record<string, string> = {
   KZT: "kz",
   AMD: "am",
   AED: "ae",
+  CNY: "cn",
 };

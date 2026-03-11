@@ -22,4 +22,5 @@ export const currencies = [
   "KZT",
   "AMD",
   "AED",
+  "CNY",
 ];

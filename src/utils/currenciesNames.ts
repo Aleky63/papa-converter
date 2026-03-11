@@ -8,4 +8,5 @@ export const currencyNames: Record<string, string> = {
   KZT: "Казахстанский тенге",
   AMD: "Армянский драм",
   AED: "Дирхам ОАЭ",
+  CNY: "Китайский юань",
 };
