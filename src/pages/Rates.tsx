@@ -13,7 +13,7 @@ const SIX_HOURS = 21600000;
 
 export default function Rates() {
   const [base, setBase] = useBaseCurrency();
-  const [rates, setRates] = useState<Record<string, number> | null>(null);
+  const [rates, setRates] = useState<Record<string, number | null> | null>(null);
   const [loading, setLoading] = useState(false);
   const [updatedAt, setUpdatedAt] = useState("");
 
@@ -46,9 +46,12 @@ export default function Rates() {
           return;
         }
 
-        const filtered: Record<string, number> = {};
+        const filtered: Record<string, number | null> = {};
         currencies.forEach((cur) => {
-          if (data.rates[cur]) filtered[cur] = data.rates[cur];
+          // Some APIs may omit the base currency itself, or not include every
+          // currency in the list. We still want to show the selected currencies
+          // (e.g. CNY) even if the rate isn't present.
+          filtered[cur] = cur in data.rates ? data.rates[cur] : null;
         });
 
         const now = Date.now();
@@ -114,7 +117,7 @@ export default function Rates() {
                 />
 
                 <span>
-                  1 {base} = {value.toFixed(4)} {code}
+                  1 {base} = {value !== null ? value.toFixed(4) : "—"} {code}
                 </span>
 
                 <span className="currency-name">— {currencyNames[code]}</span>
